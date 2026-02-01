@@ -1,43 +1,75 @@
 import React, { useEffect, useState } from "react";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
-import Pasta from "../assets/image/Pasta.jpeg";
-import categoryData from "./category.json";
 
 const Category = () => {
-  const [Category, setCategory] = useState([]);
+  const [category, setCategory] = useState([]);
+  const [slide, setSlide] = useState(0);
 
-  const fetchCategory = async () => {
-    // const response = await fetch("https://localhost:5173/categories");
-    // const data = await response.json();
-    console.log("categoryData----->", categoryData);
-    setCategory(categoryData || []);
-  };
+  const visibleItems = 8;
+  const itemWidth = 150;
+
   useEffect(() => {
-    fetchCategory();
+    fetch("/data/category.json")
+      .then((res) => res.json())
+      .then((data) => setCategory(data));
   }, []);
+
+  const nextSlide = () => {
+    if (slide < category.length - visibleItems) {
+      setSlide(slide + 2);
+    }
+  };
+
+  const prevSlide = () => {
+    if (slide > 0) {
+      setSlide(slide - 2);
+    }
+  };
+
   return (
-    <div className="max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between">
-        <div className="text-[25px] font-bold">What`s on your mind?</div>
-        <div className="flex">
-          <div className="cursor-pointer flex justify-center items-center w-[30px] h-[30px] bg-[#e2e2e7] rounded-full mx-2">
-            <FaArrowLeft />{" "}
-          </div>
-          <div className="cursor-pointer flex justify-center items-center w-[30px] h-[30px] bg-[#e2e2e7] rounded-full mx-2">
-            <FaArrowRight />{" "}
-          </div>
+    <div className="max-w-[1200px] mx-auto px-2">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-[25px] font-bold">What’s on your mind?</h2>
+
+        <div className="flex gap-2">
+          <button
+            onClick={prevSlide}
+            className="w-[30px] h-[30px] bg-[#e2e2e7] rounded-full flex items-center justify-center"
+          >
+            <FaArrowLeft />
+          </button>
+
+          <button
+            onClick={nextSlide}
+            className="w-[30px] h-[30px] bg-[#e2e2e7] rounded-full flex items-center justify-center"
+          >
+            <FaArrowRight />
+          </button>
         </div>
       </div>
-      <div className="flex border borde-red-500 overflow-hidden">
-        {Category.map((cat, index) => {
-          console.log("cat", cat);
-          return (
+
+      {/* Slider */}
+      <div className="overflow-hidden">
+        <div
+          className="flex duration-500"
+          style={{
+            transform: `translateX(-${slide * itemWidth}px)`,
+          }}
+        >
+          {category.map((cat, index) => (
             <div key={index} className="w-[150px] shrink-0">
-              <img src={Pasta} alt="" />
+              <img
+                src={`/image/${cat.image}`}
+                alt={cat.path}
+                className="w-full"
+              />
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
+
+      <hr className="my-6" />
     </div>
   );
 };
